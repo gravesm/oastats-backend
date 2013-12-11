@@ -1,0 +1,2 @@
+apachelog==1.1
+pymongo==2.6.3
