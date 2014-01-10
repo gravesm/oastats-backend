@@ -10,6 +10,7 @@ from datetime import datetime
 from pipeline.conf import settings
 from pipeline.parse_log import parse
 from pipeline.load_json import get_collection, insert
+from pipeline.geo import add_country
 
 
 collection = get_collection(settings.MONGO_DB,
@@ -19,9 +20,11 @@ collection = get_collection(settings.MONGO_DB,
 def main():
     for line in fileinput.input():
         request = parse(line)
-        t = time.strptime(request['time'].split(' ')[0], "[%d/%b/%Y:%H:%M:%S")
-        request['time'] = datetime.fromtimestamp(time.mktime(t))
-        insert(collection, request)
+        if request is not None:
+            t = time.strptime(request['time'].split(' ')[0], "[%d/%b/%Y:%H:%M:%S")
+            request['time'] = datetime.fromtimestamp(time.mktime(t))
+            request = add_country(request)
+            insert(collection, request)
 
 if __name__ == '__main__':
     main()

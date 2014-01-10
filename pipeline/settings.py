@@ -15,3 +15,7 @@ APACHE_FIELD_MAPPINGS = {
 MONGO_CONNECTION = ('localhost', 27017,)
 MONGO_DB = 'oastats'
 MONGO_COLLECTION = 'requests'
+
+# Location of the GeoIPv4 and GeoIPv6 databases
+GEOIP4_DB = ''
+GEOIP6_DB = ''
