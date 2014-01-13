@@ -17,5 +17,5 @@ MONGO_DB = 'oastats'
 MONGO_COLLECTION = 'requests'
 
 # Location of the GeoIPv4 and GeoIPv6 databases
-GEOIP4_DB = ''
-GEOIP6_DB = ''
+GEOIP4_DB = 'tests/fixtures/GeoIP.dat'
+GEOIP6_DB = 'tests/fixtures/GeoIPv6.dat'
