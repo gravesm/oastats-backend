@@ -5,4 +5,6 @@ env:
   - OASTATS_SETTINGS=pipeline.settings_test
 install:
   - pip install -r requirements.txt
+services:
+  - mongodb
 script: nosetests tests
