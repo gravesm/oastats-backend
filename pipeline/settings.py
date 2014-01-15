@@ -1,3 +1,5 @@
+import logging
+import sys
 
 # Configure which fields from the Apache log will be retained and what field
 # they will be mapped to in the final JSON object.
@@ -19,3 +21,8 @@ MONGO_COLLECTION = 'requests'
 # Location of the GeoIPv4 and GeoIPv6 databases
 GEOIP4_DB = ''
 GEOIP6_DB = ''
+
+# Configure logging for the application
+log = logging.getLogger('pipeline')
+log.addHandler(logging.StreamHandler(sys.stderr))
+log.setLevel(logging.WARNING)
