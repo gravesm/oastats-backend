@@ -2,8 +2,10 @@ from __future__ import print_function
 import sys
 import json
 import apachelog
+import logging
 from conf import settings
 
+logger = logging.getLogger(__name__)
 
 parser = apachelog.parser(apachelog.formats['extended'])
 
@@ -26,7 +28,7 @@ def parse_line(line, parser):
     try:
         return parser.parse(line)
     except apachelog.ApacheLogParserError as err:
-        print(err, file=sys.stderr)
+        logger.error(err)
 
 def default_writer(request):
     """Dummy writer returns request dictionary."""
