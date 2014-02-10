@@ -1,5 +1,6 @@
 import unittest
-from pipeline.parse_log import parse_line, parser, field_mapper, parse
+from pipeline.parse_log import (parse_line, parser, field_mapper, parse,
+                                record_filter,)
 
 class TestLogParser(unittest.TestCase):
 
@@ -25,3 +26,16 @@ class TestLogParser(unittest.TestCase):
     def test_parse_returns_a_mapped_request(self):
         request = parse(self.line)
         self.assertEqual(request.get('ip_address'), '1.2.3.4')
+
+    def test_filter_drops_non_200_requests(self):
+        self.assertIsNone(record_filter({'status': '201'}))
+
+    def test_filter_drops_non_get_requests(self):
+        self.assertIsNone(record_filter({'request': 'POST /foo/bar'}))
+
+    def test_filter_returns_successful_get_requests(self):
+        request = {
+            'status': '200',
+            'request': 'GET /baz/quux',
+        }
+        self.assertEqual(record_filter(request), request)

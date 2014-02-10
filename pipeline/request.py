@@ -36,3 +36,9 @@ def str_to_dt(request):
     t = time.strptime(request['time'].split(' ')[0], "[%d/%b/%Y:%H:%M:%S")
     request['time'] = datetime.fromtimestamp(time.mktime(t))
     return request
+
+def req_to_url(request):
+    """Convert Apache request string to URL."""
+    url = request['request'].split()[1]
+    request['request'] = url
+    return request

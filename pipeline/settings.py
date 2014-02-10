@@ -10,6 +10,7 @@ APACHE_FIELD_MAPPINGS = {
     '%>s': 'status',
     '%{Referer}i': 'referer',
     '%{User-agent}i': 'user_agent',
+    '%b': 'filesize',
 }
 
 # Should be a tuple with either host and port, MongoDB URI, or empty
