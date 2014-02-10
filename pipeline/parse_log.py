@@ -13,6 +13,10 @@ mappings = settings.APACHE_FIELD_MAPPINGS
 
 def record_filter(record):
     """Return the record if it matches certain filters, otherwise None."""
+    if not record.get("status") == "200":
+        return None
+    if not record.get("request").startswith("GET"):
+        return None
     return record
 
 def field_mapper(request, mappings):
