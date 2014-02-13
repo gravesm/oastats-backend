@@ -17,6 +17,8 @@ def record_filter(record):
         return None
     if not record.get("request").startswith("GET"):
         return None
+    if record.get("ip_address") in ['127.0.0.1', '::1', '18.7.27.25']:
+        return None
     return record
 
 def field_mapper(request, mappings):
