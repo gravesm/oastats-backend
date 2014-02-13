@@ -27,3 +27,13 @@ GEOIP6_DB = ''
 log = logging.getLogger('pipeline')
 log.addHandler(logging.StreamHandler(sys.stderr))
 log.setLevel(logging.WARNING)
+
+# Configure unresolveable IP address log
+ip_log = logging.getLogger('ip_log')
+ip_log.addHandler(logging.FileHandler('logs/ip.log'))
+ip_log.setLevel(logging.ERROR)
+
+# Configure unparseable request log
+req_log = logging.getLogger('req_log')
+req_log.addHandler(logging.FileHandler('logs/req.log'))
+req_log.setLevel(logging.ERROR)

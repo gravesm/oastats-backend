@@ -23,12 +23,9 @@ def get_alpha3_code(alpha2):
 def add_country(request):
     """Add ISO 3166-1 alpha-3 code to country field of request dict."""
     ip = request.get('ip_address')
-    try:
-        alpha2 = get_alpha2_code(ip)
-        alpha3 = get_alpha3_code(alpha2)
-        request['country'] = alpha3
-    except (pygeoip.GeoIPError, KeyError):
-        logger.warning("Could not find country code for IP address: {0}".format(ip))
+    alpha2 = get_alpha2_code(ip)
+    alpha3 = get_alpha3_code(alpha2)
+    request['country'] = alpha3
     return request
 
 def str_to_dt(request):

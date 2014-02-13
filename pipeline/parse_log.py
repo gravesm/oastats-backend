@@ -29,10 +29,7 @@ def field_mapper(request, mappings):
 
 def parse_line(line, parser):
     """Parse line from Apache log and return parsed request as dictionary."""
-    try:
-        return parser.parse(line)
-    except apachelog.ApacheLogParserError as err:
-        logger.error(err)
+    return parser.parse(line)
 
 def default_writer(request):
     """Dummy writer returns request dictionary."""
