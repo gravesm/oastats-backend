@@ -1,10 +1,11 @@
-#!/usr/bin/env python
+from __future__ import print_function
 
 import os
 
 os.environ.setdefault("OASTATS_SETTINGS", "pipeline.settings")
 
 import fileinput
+import sys
 from pipeline.conf import settings
 from pipeline.parse_log import parse
 from pipeline.load_json import get_collection, insert
@@ -45,6 +46,12 @@ def main():
                 continue
             request = req_to_url(request)
             insert(collection, request)
+
+    lines = fileinput.filelineno()
+    if not lines:
+        sys.exit("No requests to process")
+    print("{0} requests processed".format(fileinput.filelineno()))
+
 
 if __name__ == '__main__':
     main()
