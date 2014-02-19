@@ -39,3 +39,10 @@ class TestLogParser(unittest.TestCase):
             'request': 'GET /baz/quux',
         }
         self.assertEqual(record_filter(request), request)
+
+    def test_filter_drops_localhost_requests(self):
+        self.assertIsNone(record_filter({'ip_address': '127.0.0.1'}))
+        self.assertIsNone(record_filter({'ip_address': '::1'}))
+
+    def test_filter_drops_monitoring_requests(self):
+        self.assertIsNone(record_filter({'ip_address': '18.7.27.25'}))

@@ -17,6 +17,8 @@ def record_filter(record):
         return None
     if not record.get("request").startswith("GET"):
         return None
+    if record.get("ip_address") in ['127.0.0.1', '::1', '18.7.27.25']:
+        return None
     return record
 
 def field_mapper(request, mappings):
@@ -29,10 +31,7 @@ def field_mapper(request, mappings):
 
 def parse_line(line, parser):
     """Parse line from Apache log and return parsed request as dictionary."""
-    try:
-        return parser.parse(line)
-    except apachelog.ApacheLogParserError as err:
-        logger.error(err)
+    return parser.parse(line)
 
 def default_writer(request):
     """Dummy writer returns request dictionary."""
