@@ -18,7 +18,16 @@ def main():
 
     summarize.add_summary_data(requests, summary)
     summarize.add_summary_map(requests, summary)
-    summarize.add_summary_time(requests, summary)
+    summarize.add_summary_date(requests, summary)
+
+    for field in ['dlc', 'author', 'handle']:
+        summarize.add_field_summary_date(requests, summary, field)
+        summarize.add_field_summary_map(requests, summary, field)
+        summarize.add_field_summary_overall(requests, summary, field)
+
+    summarize.add_author_dlcs(requests, summary)
+    summarize.add_handle_author(requests, summary)
+
 
 if __name__ == '__main__':
     main()

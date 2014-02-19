@@ -11,9 +11,14 @@ class TestSummarize(unittest.TestCase):
         self.req = self.box.client().db1.req
         self.sum = self.box.client().db1.sum
 
-    def load(self):
-
-        self.req.insert([self.req1, self.req2])
+    def test_add_summary_data_summarizes_data(self):
+        self.req.insert([
+                        {'handle': 'TEH_FOO'},
+                        {'handle': 'TEH_FOO'},
+                        {'handle': 'TEH_BAR'}])
+        summarize.add_summary_data(self.req, self.sum)
+        self.assertEqual(self.sum.find_one(),
+                         {'_id': 'Overall', 'type': 'overall', 'size': 2, 'downloads': 3})
 
     def test_add_summary_map_summarizes_country_data(self):
         self.req.insert([
@@ -72,6 +77,47 @@ class TestSummarize(unittest.TestCase):
                             {'country': 'FIN', 'downloads': 1},
                             {'country': 'GER', 'downloads': 1}
                          ]})
+
+    def test_add_field_summary_overall_summarizes_overall_data(self):
+        self.req.insert([
+                        {'handle': 'LOONYGOONS', 'author': 'Sir Topham Hate'},
+                        {'handle': 'LOONYGOONS', 'author': 'Sir Topham Hate'},
+                        {'handle': 'LOONYGOONS', 'author': 'Master Bromide'},
+                        {'handle': 'STIMBLECON', 'author': 'Sir Topham Hate'}])
+        summarize.add_field_summary_overall(self.req, self.sum, 'author')
+        self.assertEqual(self.sum.find_one({'_id': 'Sir Topham Hate'}),
+                         {'_id': 'Sir Topham Hate',
+                          'type': 'author', 'downloads': 3, 'size': 2})
+        self.assertEqual(self.sum.find_one({'_id': 'Master Bromide'}),
+                         {'_id': 'Master Bromide',
+                          'type': 'author', 'downloads': 1, 'size': 1})
+
+    def test_add_author_dlcs_adds_set_of_dlcs(self):
+        self.req.insert([
+                        {'author': 'Muffincup', 'dlc': 'School of Muffin Science'},
+                        {'author': 'Muffincup', 'dlc': 'School of Muffin Science'},
+                        {'author': 'Muffincup', 'dlc': 'School of Muffin Design'},
+                        {'author': 'Cupcake Mary', 'dlc': 'Dept of Cupcake Research'}])
+        summarize.add_author_dlcs(self.req, self.sum)
+        self.assertEqual(self.sum.find_one({'_id': 'Muffincup'}),
+                         {'_id': 'Muffincup', 'parents': [
+                            'School of Muffin Design', 'School of Muffin Science']})
+        self.assertEqual(self.sum.find_one({'_id': 'Cupcake Mary'}),
+                         {'_id': 'Cupcake Mary', 'parents': [
+                            'Dept of Cupcake Research']})
+
+    def test_add_handle_author_adds_set_of_authors(self):
+        self.req.insert([
+                        {'handle': 'MOONBOTTOM', 'author': 'Lord Fiddleruff'},
+                        {'handle': 'MOONBOTTOM', 'author': 'Lady Rumplecuff'},
+                        {'handle': 'MOONBOTTOM', 'author': 'Lord Fiddleruff'},
+                        {'handle': 'KITTENTOWN', 'author': 'Lady Rumplecuff'}])
+        summarize.add_handle_author(self.req, self.sum)
+        self.assertEqual(self.sum.find_one({'_id': 'MOONBOTTOM'}),
+                         {'_id': 'MOONBOTTOM', 'parents': [
+                            'Lady Rumplecuff', 'Lord Fiddleruff']})
+        self.assertEqual(self.sum.find_one({'_id': 'KITTENTOWN'}),
+                         {'_id': 'KITTENTOWN', 'parents': ['Lady Rumplecuff']})
 
     def tearDown(self):
         self.box.stop()
