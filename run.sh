@@ -14,6 +14,9 @@ set -o pipefail
 # python binary.
 OASTATS_PIPELINE=
 
+# Location of summary.py.
+OASTATS_SUMMARY=
+
 # Location of current Apache log.
 CURRENT_LOG=
 
@@ -33,3 +36,13 @@ then
 fi
 
 grep -h $YESTERDAY $CURRENT_LOG $LAST_MONTH_LOG | $OASTATS_PIPELINE
+
+STATUS=$?
+
+if [ $STATUS -eq 0 ]
+then
+    $OASTATS_SUMMARY
+else
+    echo $(basename "$0"): Pipeline processing failed, skipping summary 1>&2
+    exit $STATUS
+fi
