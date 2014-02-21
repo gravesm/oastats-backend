@@ -10,12 +10,15 @@ from pipeline.conf import settings
 from pipeline.parse_log import parse
 from pipeline.load_json import get_collection, insert
 from pipeline.request import add_country, str_to_dt, req_to_url
+from pipeline.dspace import fetch_metadata
 import pygeoip
 import logging
 import apachelog
+import requests
 
 ip_log = logging.getLogger("ip_log")
 req_log = logging.getLogger("req_log")
+meta_log = logging.getLogger("meta_log")
 
 collection = get_collection(settings.MONGO_DB,
                             settings.MONGO_COLLECTION,
@@ -45,6 +48,11 @@ def main():
                 ip_log.error(line.strip('\n'))
                 continue
             request = req_to_url(request)
+            try:
+                request = fetch_metadata(request)
+            except requests.exceptions.RequestException:
+                meta_log.error(line.strip('\n'))
+                continue
             insert(collection, request)
 
     lines = fileinput.filelineno()

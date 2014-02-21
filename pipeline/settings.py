@@ -24,6 +24,9 @@ MONGO_SUMMARY_COLLECTION = 'summary'
 GEOIP4_DB = ''
 GEOIP6_DB = ''
 
+# DSpace identity service
+DSPACE_IDENTITY_SERVICE = ''
+
 # Configure logging for the application
 log = logging.getLogger('pipeline')
 log.addHandler(logging.StreamHandler(sys.stderr))
@@ -38,3 +41,8 @@ ip_log.setLevel(logging.ERROR)
 req_log = logging.getLogger('req_log')
 req_log.addHandler(logging.FileHandler('logs/req.log'))
 req_log.setLevel(logging.ERROR)
+
+# Configure failed DSpace lookup log
+meta_log = logging.getLogger('meta_log')
+meta_log.addHandler(logging.FileHandler('logs/meta.log'))
+meta_log.setLevel(logging.ERROR)

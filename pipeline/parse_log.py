@@ -3,6 +3,7 @@ import sys
 import json
 import apachelog
 import logging
+import re
 from conf import settings
 
 logger = logging.getLogger(__name__)
@@ -10,6 +11,7 @@ logger = logging.getLogger(__name__)
 parser = apachelog.parser(apachelog.formats['extended'])
 
 mappings = settings.APACHE_FIELD_MAPPINGS
+handle_pattern = re.compile(r"/handle/[0-9.]+/[0-9]+")
 
 def record_filter(record):
     """Return the record if it matches certain filters, otherwise None."""
@@ -18,6 +20,8 @@ def record_filter(record):
     if not record.get("request").startswith("GET"):
         return None
     if record.get("ip_address") in ['127.0.0.1', '::1', '18.7.27.25']:
+        return None
+    if handle_pattern.search(record.get("request")) is None:
         return None
     return record
 

@@ -22,6 +22,8 @@ MONGO_COLLECTION = 'requests'
 GEOIP4_DB = 'tests/fixtures/GeoIP.dat'
 GEOIP6_DB = 'tests/fixtures/GeoIPv6.dat'
 
+DSPACE_IDENTITY_SERVICE = 'http://www.example.com'
+
 # Configure logging for the application
 log = logging.getLogger('pipeline')
 log.addHandler(logging.StreamHandler(sys.stderr))
