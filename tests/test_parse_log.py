@@ -1,4 +1,4 @@
-import unittest
+from testing.utils import unittest
 from pipeline.parse_log import (parse_line, parser, field_mapper, parse,
                                 record_filter,)
 

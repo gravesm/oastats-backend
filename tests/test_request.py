@@ -1,4 +1,4 @@
-import unittest
+from testing.utils import unittest
 import datetime
 from pipeline.request import (add_country, get_alpha2_code, str_to_dt,
                               req_to_url,)
