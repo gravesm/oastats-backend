@@ -12,7 +12,13 @@ def error_response(url, request):
 @all_requests
 def dspace_response(url, request):
     return {
-        'content': '{"department": "Hay There", "uri": "Meadowcup", "title": "50 Shades of Hay"}'
+        'content': '{"department": "Hay There", "uri": "Meadowcup", "title": "50 Shades of Hay", "success": "true"}'
+    }
+
+@all_requests
+def failure_response(url, request):
+    return {
+        'content': '{"success": "false"}'
     }
 
 
@@ -38,3 +44,7 @@ class TestDSpace(unittest.TestCase):
             self.assertRaises(requests.HTTPError,
                               dspace.fetch_metadata,
                               self.request)
+
+    def test_fetch_metadata_returns_false_on_no_success(self):
+        with HTTMock(failure_response):
+            self.assertFalse(dspace.fetch_metadata(self.request))

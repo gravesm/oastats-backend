@@ -8,6 +8,8 @@ def fetch_metadata(request):
     r = requests.get(settings.DSPACE_IDENTITY_SERVICE,
                      params={'handle': get_handle(request.get("request"))})
     data = r.raise_for_status() or r.json()
+    if data.get('success', 'false').lower() != 'true':
+        return False
     request['dlc'] = data.get("department")
     request['handle'] = data.get("uri")
     request['title'] = data.get("title")

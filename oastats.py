@@ -50,6 +50,8 @@ def main():
             request = req_to_url(request)
             try:
                 request = fetch_metadata(request)
+                if not request:
+                    continue
             except requests.exceptions.RequestException:
                 meta_log.error(line.strip('\n'))
                 continue
