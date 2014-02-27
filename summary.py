@@ -4,9 +4,10 @@ os.environ.setdefault("OASTATS_SETTINGS", "pipeline.settings")
 
 from pipeline.conf import settings
 from pipeline.load_json import get_collection
-import pipeline.summarize as summarize
+from pipeline.summarize import create_summary_collection
 
 def main():
+
     requests = get_collection(settings.MONGO_DB,
                               settings.MONGO_COLLECTION,
                               settings.MONGO_CONNECTION)
@@ -14,17 +15,7 @@ def main():
                              settings.MONGO_SUMMARY_COLLECTION,
                              settings.MONGO_CONNECTION)
 
-    summarize.add_summary_data(requests, summary)
-    summarize.add_summary_map(requests, summary)
-    summarize.add_summary_date(requests, summary)
-
-    for field in ['dlc', 'author', 'handle']:
-        summarize.add_field_summary_date(requests, summary, field)
-        summarize.add_field_summary_map(requests, summary, field)
-        summarize.add_field_summary_overall(requests, summary, field)
-
-    summarize.add_author_dlcs(requests, summary)
-    summarize.add_handle_author(requests, summary)
+    create_summary_collection(requests, summary)
 
 
 if __name__ == '__main__':
