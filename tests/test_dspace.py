@@ -18,15 +18,11 @@ def dspace_response(url, request):
 @all_requests
 def failure_response(url, request):
     return {
-        'content': '{"success": "false"}'
+        'content': '{"success": false}'
     }
 
 
 class TestDSpace(unittest.TestCase):
-
-    request = {
-        'request': '/handle/1234.5/666',
-    }
 
     def test_get_handle_returns_handle(self):
         req_string = "http://www.example.com/foo/handle/1.2/3"
@@ -34,8 +30,8 @@ class TestDSpace(unittest.TestCase):
 
     def test_fetch_metadata_sets_properties(self):
         with HTTMock(dspace_response):
-            req = dspace.fetch_metadata(self.request)
-            self.assertEqual(req['dlc'], "Hay There")
+            req = dspace.fetch_metadata({'request': '/handle/1.2.3/4'})
+            self.assertEqual(req['dlcs'], ["Hay There"])
             self.assertEqual(req['handle'], "Meadowcup")
             self.assertEqual(req['title'], "50 Shades of Hay")
 
@@ -43,8 +39,8 @@ class TestDSpace(unittest.TestCase):
         with HTTMock(error_response):
             self.assertRaises(requests.HTTPError,
                               dspace.fetch_metadata,
-                              self.request)
+                              {'request': '/handle/1.2/4'})
 
     def test_fetch_metadata_returns_false_on_no_success(self):
         with HTTMock(failure_response):
-            self.assertFalse(dspace.fetch_metadata(self.request))
+            self.assertFalse(dspace.fetch_metadata({'request': '/handle/1.2.3/5'}))
