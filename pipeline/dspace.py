@@ -1,13 +1,13 @@
 import re
 import requests
 from conf import settings
+from .decorators import memoize
 
 handle_pattern = re.compile(r"/handle/(?P<handle>[0-9.]+/[0-9]+)")
 
 def fetch_metadata(request):
-    r = requests.get(settings.DSPACE_IDENTITY_SERVICE,
-                     params={'handle': get_handle(request.get("request"))})
-    data = r.raise_for_status() or r.json()
+    res = _make_request(get_handle(request.get("request")))
+    data = res.raise_for_status() or res.json()
     if not data.get('success'):
         return False
     request['dlcs'] = [data.get("department")]
@@ -21,3 +21,8 @@ def fetch_metadata(request):
 def get_handle(req_string):
     matches = handle_pattern.search(req_string)
     return matches.groupdict().get('handle')
+
+@memoize
+def _make_request(handle):
+    return requests.get(settings.DSPACE_IDENTITY_SERVICE,
+                        params={'handle': handle})
