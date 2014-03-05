@@ -99,23 +99,18 @@ def set_handle_countries(requests, summary):
         update(summary, result['_id'], { '$set': { 'countries': result['countries'] } })
 
 def set_handle_dates(requests, summary):
-    query = [
-        { '$group': {
-            '_id': { 'handle': '$handle', 'time': { '$substr': ['$time',0,10] } },
-            'downloads': { '$sum': 1 }
-        } },
-        { '$group': {
-            '_id': '$_id.handle',
-            'dates': {
-                '$push': {
-                    'date': '$_id.time',
-                    'downloads': '$downloads'
-                }
-            }
-        } }
-    ]
-    for result in aggregate(requests, query):
-        update(summary, result['_id'], { '$set': { 'dates': result['dates'] } })
+    for handle in requests.distinct('handle'):
+        dates = []
+        query = [
+            { '$match': { 'handle': handle } },
+            { '$group': {
+                '_id': { '$substr': ['$time',0,10] },
+                'downloads': { '$sum': 1 }
+            } }
+        ]
+        for result in aggregate(requests, query):
+            dates.append({'date': result['_id'], 'downloads': result['downloads']})
+        update(summary, handle, { '$set': { 'dates': dates } })
 
 def set_handle_authors(requests, summary):
     query = [
@@ -132,25 +127,18 @@ def set_handle_authors(requests, summary):
         update(summary, result['_id'], { '$set': { 'parents': result['parents'] } })
 
 def set_author_dates(requests, summary):
-    query = [
-        { '$match': { 'authors': { '$exists': True } } },
-        { '$unwind': '$authors' },
-        { '$group': {
-            '_id': { 'time': { '$substr': ['$time',0,10] }, 'author': '$authors' },
-            'downloads': { '$sum': 1 }
-        } },
-        { '$group': {
-            '_id': '$_id.author',
-            'dates': {
-                '$push': {
-                    'date': '$_id.time',
-                    'downloads': '$downloads'
-                }
-            }
-        } }
-    ]
-    for result in aggregate(requests, query):
-        update(summary, result['_id'], {'$set': {'dates': result['dates']}})
+    for author in requests.distinct('authors'):
+        dates = []
+        query = [
+            { '$match': { 'authors': { '$in': [ author ] } } },
+            { '$group': {
+                '_id': { '$substr': ['$time', 0, 10] },
+                'downloads': { '$sum': 1 }
+            } }
+        ]
+        for result in aggregate(requests, query):
+            dates.append({'date': result['_id'], 'downloads': result['downloads']})
+        update(summary, author, { '$set': { 'dates': dates} })
 
 def set_author_countries(requests, summary):
     query = [
@@ -222,24 +210,18 @@ def set_dlc_summary(requests, summary):
                {'$set': {'type': 'dlc', 'size': result['size'], 'downloads': result['downloads']}})
 
 def set_dlc_dates(requests, summary):
-    query = [
-        { '$unwind': '$dlcs' },
-        { '$group': {
-            '_id': { 'time': { '$substr': ['$time',0,10] }, 'dlc': '$dlcs' },
-            'downloads': { '$sum': 1 }
-        } },
-        { '$group': {
-            '_id': '$_id.dlc',
-            'dates': {
-                '$push': {
-                    'date': '$_id.time',
-                    'downloads': '$downloads'
-                }
-            }
-        } }
-    ]
-    for result in aggregate(requests, query):
-        update(summary, result['_id'], {'$set': {'dates': result['dates']}})
+    for dlc in requests.distinct('dlcs'):
+        dates = []
+        query = [
+            { '$match': { 'dlcs': { '$in': [ dlc ] } } },
+            { '$group': {
+                '_id': { '$substr': ['$time', 0, 10] },
+                'downloads': { '$sum': 1 }
+            } }
+        ]
+        for result in aggregate(requests, query):
+            dates.append({'date': result['_id'], 'downloads': result['downloads']})
+        update(summary, dlc, { '$set': { 'dates': dates } })
 
 def set_dlc_countries(requests, summary):
     query = [
