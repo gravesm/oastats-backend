@@ -79,6 +79,17 @@ def set_overall_date(requests, summary):
     for result in aggregate(requests, query):
         update(summary, 'Overall', {'$set': {'dates': result['dates']}})
 
+def set_handle_summary(requests, summary):
+    query = [
+        { '$group': {
+            '_id': '$handle',
+            'downloads': { '$sum': 1 }
+        } }
+    ]
+    for result in aggregate(requests, query):
+        update(summary, result['_id'],
+               {'$set': {'type': 'handle', 'downloads': result['downloads'] } })
+
 def set_handle_countries(requests, summary):
     query = [
         { '$group': {
