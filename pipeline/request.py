@@ -4,12 +4,14 @@ import time
 from datetime import datetime
 import logging
 from conf import settings
+from .decorators import memoize
 
 logger = logging.getLogger(__name__)
 
 geov4 = pygeoip.GeoIP(settings.GEOIP4_DB)
 geov6 = pygeoip.GeoIP(settings.GEOIP6_DB)
 
+@memoize
 def get_alpha2_code(ip):
     try:
         return geov4.country_code_by_addr(ip)

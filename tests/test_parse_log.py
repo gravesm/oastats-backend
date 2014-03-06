@@ -1,4 +1,4 @@
-import unittest
+from testing.utils import unittest
 from pipeline.parse_log import (parse_line, parser, field_mapper, parse,
                                 record_filter,)
 
@@ -28,21 +28,45 @@ class TestLogParser(unittest.TestCase):
         self.assertEqual(request.get('ip_address'), '1.2.3.4')
 
     def test_filter_drops_non_200_requests(self):
-        self.assertIsNone(record_filter({'status': '201'}))
+        self.assertIsNone(record_filter({
+            'status': '201',
+            'request': 'GET /handle/1.2/3'
+        }))
 
     def test_filter_drops_non_get_requests(self):
-        self.assertIsNone(record_filter({'request': 'POST /foo/bar'}))
+        self.assertIsNone(record_filter({
+            'request': 'POST /handle/1.2/3',
+            'status': '200'
+        }))
+
+    def test_filter_drops_non_handle_requests(self):
+        self.assertIsNone(record_filter({
+            'request': 'GET /foobar/1.2/3',
+            'status': '200'
+        }))
 
     def test_filter_returns_successful_get_requests(self):
         request = {
             'status': '200',
-            'request': 'GET /baz/quux',
+            'request': 'GET /handle/1234.5/666',
         }
         self.assertEqual(record_filter(request), request)
 
     def test_filter_drops_localhost_requests(self):
-        self.assertIsNone(record_filter({'ip_address': '127.0.0.1'}))
-        self.assertIsNone(record_filter({'ip_address': '::1'}))
+        self.assertIsNone(record_filter({
+            'status': '200',
+            'request': 'GET /handle/1.2/3',
+            'ip_address': '127.0.0.1'
+        }))
+        self.assertIsNone(record_filter({
+            'ip_address': '::1',
+            'status': '200',
+            'request': 'GET /handle/1.2/3'
+        }))
 
     def test_filter_drops_monitoring_requests(self):
-        self.assertIsNone(record_filter({'ip_address': '18.7.27.25'}))
+        self.assertIsNone(record_filter({
+            'status': '200',
+            'request': 'GET /handle/1.2/3',
+            'ip_address': '18.7.27.25'
+        }))

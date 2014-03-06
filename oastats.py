@@ -10,12 +10,15 @@ from pipeline.conf import settings
 from pipeline.parse_log import parse
 from pipeline.load_json import get_collection, insert
 from pipeline.request import add_country, str_to_dt, req_to_url
+from pipeline.dspace import fetch_metadata
 import pygeoip
 import logging
 import apachelog
+import requests
 
 ip_log = logging.getLogger("ip_log")
 req_log = logging.getLogger("req_log")
+meta_log = logging.getLogger("meta_log")
 
 collection = get_collection(settings.MONGO_DB,
                             settings.MONGO_COLLECTION,
@@ -29,6 +32,8 @@ def main():
     mapped to a country are skipped and written as is to separate log files.
 
     """
+    req_buffer = []
+
     for line in fileinput.input():
         try:
             request = parse(line)
@@ -45,8 +50,18 @@ def main():
                 ip_log.error(line.strip('\n'))
                 continue
             request = req_to_url(request)
-            insert(collection, request)
-
+            try:
+                request = fetch_metadata(request)
+                if not request:
+                    continue
+            except requests.exceptions.RequestException:
+                meta_log.error(line.strip('\n'))
+                continue
+            req_buffer.append(request)
+            if len(req_buffer) > 999:
+                insert(collection, req_buffer)
+                req_buffer = []
+    insert(collection, req_buffer)
     lines = fileinput.filelineno()
     if not lines:
         sys.exit("No requests to process")
