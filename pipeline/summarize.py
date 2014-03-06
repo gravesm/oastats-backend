@@ -4,7 +4,7 @@ def create_summary_collection(requests, summary):
     set_overall_countries(requests, summary)
     set_overall_date(requests, summary)
 
-    set_handle_summmary(requests, summary)
+    set_handle_summary(requests, summary)
     set_handle_countries(requests, summary)
     set_handle_dates(requests, summary)
     set_handle_authors(requests, summary)
