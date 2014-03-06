@@ -32,6 +32,8 @@ def main():
     mapped to a country are skipped and written as is to separate log files.
 
     """
+    req_buffer = []
+
     for line in fileinput.input():
         try:
             request = parse(line)
@@ -55,8 +57,11 @@ def main():
             except requests.exceptions.RequestException:
                 meta_log.error(line.strip('\n'))
                 continue
-            insert(collection, request)
-
+            req_buffer.append(request)
+            if len(req_buffer) > 999:
+                insert(collection, req_buffer)
+                req_buffer = []
+    insert(collection, req_buffer)
     lines = fileinput.filelineno()
     if not lines:
         sys.exit("No requests to process")
