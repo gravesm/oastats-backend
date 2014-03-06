@@ -43,15 +43,20 @@ class TestSummarize(unittest.TestCase):
         self.assertIn({'date': '2006-06-06', 'downloads': 2}, result['dates'])
 
     def test_set_handle_summary_summarizes_downloads(self):
-        self.req.insert([{'handle': 'LIMBLE'},{'handle': 'LIMBLE'},{'handle': 'MIMBLE'}])
+        self.req.insert([
+                        {'handle': 'LIMBLE', 'title': 'Nimble'},
+                        {'handle': 'LIMBLE', 'title': 'Nimble'},
+                        {'handle': 'MIMBLE', 'title': 'Kimble'}])
         summarize.set_handle_summary(self.req, self.sum)
 
         res = self.sum.find_one({'_id': 'LIMBLE'})
         self.assertEqual(res['downloads'], 2)
         self.assertEqual(res['type'], 'handle')
+        self.assertEqual(res['title'], 'Nimble')
 
         res = self.sum.find_one({'_id': 'MIMBLE'})
         self.assertEqual(res['downloads'], 1)
+        self.assertEqual(res['title'], 'Kimble')
 
     def test_set_handle_countries_summarizes_country_downloads(self):
         self.req.insert([

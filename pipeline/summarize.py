@@ -84,12 +84,13 @@ def set_handle_summary(requests, summary):
     query = [
         { '$group': {
             '_id': '$handle',
+            'title': { '$first': '$title' },
             'downloads': { '$sum': 1 }
         } }
     ]
     for result in aggregate(requests, query):
         update(summary, result['_id'],
-               {'$set': {'type': 'handle', 'downloads': result['downloads'] } })
+               {'$set': {'type': 'handle', 'title': result['title'], 'downloads': result['downloads'] } })
 
 def set_handle_countries(requests, summary):
     query = [
