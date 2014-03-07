@@ -1,13 +1,17 @@
 import os
-import importlib
-
-
-os.environ.setdefault("OASTATS_SETTINGS", "settings")
 
 class Settings(object):
 
     def __init__(self):
-        settings_module = importlib.import_module(os.environ['OASTATS_SETTINGS'])
+        try:
+            import importlib.machinery
+            loader = importlib.machinery.SourceFileLoader('pipeline.settings',
+                                                          os.environ['OASTATS_SETTINGS'])
+            settings_module = loader.load_module('pipeline.settings')
+        except ImportError:
+            import imp
+            settings_module = imp.load_source('pipeline.settings',
+                                              os.environ['OASTATS_SETTINGS'])
         self.SETTINGS = SettingsContainer(settings_module)
 
     def __getattr__(self, name):
