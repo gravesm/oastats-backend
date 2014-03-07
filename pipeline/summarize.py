@@ -127,7 +127,7 @@ def set_handle_dates(requests, summary):
 
 def set_handle_authors(requests, summary):
     query = [
-        { '$match': { 'authors': { '$exists': True } } },
+        { '$match': { 'authors': { '$elemMatch': { '$exists': True } } } },
         { '$unwind': '$authors' },
         { '$group': {
             '_id': '$handle',
@@ -155,7 +155,7 @@ def set_author_dates(requests, summary):
 
 def set_author_countries(requests, summary):
     query = [
-        { '$match': { 'authors': { '$exists': True } } },
+        { '$match': { 'authors': { '$elemMatch': { '$exists': True } } } },
         { '$unwind': '$authors' },
         { '$group': {
             '_id': { 'country': '$country', 'author': '$authors' },
@@ -176,7 +176,7 @@ def set_author_countries(requests, summary):
 
 def set_author_summary(requests, summary):
     query = [
-        { '$match': { 'authors': { '$exists': True } } },
+        { '$match': { 'authors': { '$elemMatch': { '$exists': True } } } },
         { '$unwind': '$authors' },
         { '$group': {
             '_id': { 'handle': '$handle', 'author': '$authors' },
@@ -194,7 +194,7 @@ def set_author_summary(requests, summary):
 
 def set_author_dlcs(requests, summary):
     query = [
-        { '$match': { 'authors': { '$exists': True } } },
+        { '$match': { 'authors': { '$elemMatch': { '$exists': True } } } },
         { '$unwind': '$authors' },
         { '$unwind': '$dlcs' },
         { '$group': {
