@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import os
 
-os.environ.setdefault("OASTATS_SETTINGS", "pipeline.settings")
+os.environ.setdefault("OASTATS_SETTINGS", "settings.py")
 
 import fileinput
 import sys

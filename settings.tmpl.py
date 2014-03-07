@@ -1,0 +1,54 @@
+import logging
+import sys
+from pipeline.log import RequestFilter, RequestFormatter
+
+# Configure which fields from the Apache log will be retained and what field
+# they will be mapped to in the final JSON object.
+APACHE_FIELD_MAPPINGS = {
+    '%h': 'ip_address',
+    '%t': 'time',
+    '%r': 'request',
+    '%>s': 'status',
+    '%{Referer}i': 'referer',
+    '%{User-agent}i': 'user_agent',
+    '%b': 'filesize',
+}
+
+# Should be a tuple with either host and port, MongoDB URI, or empty
+# ex: ('localhost', 27017,) or ('mongodb://localhost:27017',)
+# Remember the trailing comma!
+MONGO_CONNECTION = ('localhost', 27017,)
+MONGO_DB = 'oastats'
+MONGO_COLLECTION = 'requests'
+MONGO_SUMMARY_COLLECTION = 'summary'
+
+# Location of the GeoIPv4 and GeoIPv6 databases
+GEOIP4_DB = ''
+GEOIP6_DB = ''
+
+# DSpace identity service
+DSPACE_IDENTITY_SERVICE = 'http://dspace-dev.mit.edu/ws/oastats'
+
+# Configure logging for the application
+log = logging.getLogger('pipeline')
+log.addHandler(logging.StreamHandler(sys.stderr))
+log.setLevel(logging.INFO)
+
+# Configure logging for request logger
+req = logging.getLogger('req_log')
+
+ip_hdlr = logging.FileHandler('logs/ip.log')
+ip_hdlr.addFilter(RequestFilter('IP_ERROR'))
+ip_hdlr.setFormatter(RequestFormatter())
+
+req_hdlr = logging.FileHandler('logs/req.log')
+req_hdlr.addFilter(RequestFilter('REQUEST_ERROR'))
+req_hdlr.setFormatter(RequestFormatter())
+
+meta_hdlr = logging.FileHandler('logs/meta.log')
+meta_hdlr.addFilter(RequestFilter('DSPACE_ERROR'))
+meta_hdlr.setFormatter(RequestFormatter())
+
+req.addHandler(ip_hdlr)
+req.addHandler(meta_hdlr)
+req.addHandler(req_hdlr)
