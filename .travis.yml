@@ -3,7 +3,7 @@ python:
   - "2.6"
   - "2.7"
 env:
-  - OASTATS_SETTINGS=pipeline.settings_test
+  - OASTATS_SETTINGS=tests/fixtures/settings.py
 install:
   - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install importlib unittest2; fi
   - pip install -r requirements.txt

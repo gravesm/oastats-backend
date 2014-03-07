@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import os
 
 os.environ.setdefault("OASTATS_SETTINGS", "settings.py")
@@ -7,10 +5,8 @@ os.environ.setdefault("OASTATS_SETTINGS", "settings.py")
 import fileinput
 import sys
 from pipeline.conf import settings
-from pipeline.parse_log import parse
+from pipeline import process
 from pipeline.load_json import get_collection, insert
-from pipeline.request import add_country, str_to_dt, req_to_url
-from pipeline.dspace import fetch_metadata
 import pygeoip
 import logging
 import apachelog
@@ -27,39 +23,37 @@ def main():
     """Parse stream of requests and insert into MongoDB collection.
 
     This script will accept input from either stdin or one or more files as
-    arguments. Requests that are unparseable or whose IP address cannot be
-    mapped to a country are skipped and written as is to separate log files.
+    arguments. Two loggers control logging--one general purpose logger for the
+    application and one for logging requests that fail to make it through the
+    pipeline. The latter is configured to route different kinds of failures to
+    different streams as configured. The failed requests will be logged
+    unmodified, as they entered the pipeline, to make later attempts at
+    processing easier.
 
+    Failure to send any requests through the pipeline will result in an exit
+    status of 1.
     """
     req_buffer = []
 
     for line in fileinput.input():
         try:
-            request = parse(line)
+            request = process(line)
         except apachelog.ApacheLogParserError:
             # log unparseable requests
             req_log.error(line, extra={'err_type': 'REQUEST_ERROR'})
             continue
-        if request is not None:
-            request = str_to_dt(request)
-            try:
-                request = add_country(request)
-            except (pygeoip.GeoIPError, KeyError):
-                # log unresolveable IP addresses
-                req_log.error(line, extra={'err_type': 'IP_ERROR'})
-                continue
-            request = req_to_url(request)
-            try:
-                request = fetch_metadata(request)
-                if not request:
-                    continue
-            except requests.exceptions.RequestException:
-                req_log.error(line, extra={'err_type': 'DSPACE_ERROR'})
-                continue
+        except (pygeoip.GeoIPError, KeyError):
+            # log unresolveable IP addresses
+            req_log.error(line, extra={'err_type': 'IP_ERROR'})
+            continue
+        except requests.exceptions.RequestException:
+            req_log.error(line, extra={'err_type': 'DSPACE_ERROR'})
+            continue
+        if request:
             req_buffer.append(request)
-            if len(req_buffer) > 999:
-                insert(collection, req_buffer)
-                req_buffer = []
+        if len(req_buffer) > 999:
+            insert(collection, req_buffer)
+            req_buffer = []
     if req_buffer:
         insert(collection, req_buffer)
     if not fileinput.lineno():
