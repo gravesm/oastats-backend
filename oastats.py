@@ -17,9 +17,7 @@ import apachelog
 import requests
 
 log = logging.getLogger("pipeline")
-ip_log = logging.getLogger("ip_log")
 req_log = logging.getLogger("req_log")
-meta_log = logging.getLogger("meta_log")
 
 collection = get_collection(settings.MONGO_DB,
                             settings.MONGO_COLLECTION,
@@ -40,7 +38,7 @@ def main():
             request = parse(line)
         except apachelog.ApacheLogParserError:
             # log unparseable requests
-            req_log.error(line.strip('\n'))
+            req_log.error(line, extra={'err_type': 'REQUEST_ERROR'})
             continue
         if request is not None:
             request = str_to_dt(request)
@@ -48,7 +46,7 @@ def main():
                 request = add_country(request)
             except (pygeoip.GeoIPError, KeyError):
                 # log unresolveable IP addresses
-                ip_log.error(line.strip('\n'))
+                req_log.error(line, extra={'err_type': 'IP_ERROR'})
                 continue
             request = req_to_url(request)
             try:
@@ -56,7 +54,7 @@ def main():
                 if not request:
                     continue
             except requests.exceptions.RequestException:
-                meta_log.error(line.strip('\n'))
+                req_log.error(line, extra={'err_type': 'DSPACE_ERROR'})
                 continue
             req_buffer.append(request)
             if len(req_buffer) > 999:
