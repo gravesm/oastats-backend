@@ -16,6 +16,7 @@ import logging
 import apachelog
 import requests
 
+log = logging.getLogger("pipeline")
 ip_log = logging.getLogger("ip_log")
 req_log = logging.getLogger("req_log")
 meta_log = logging.getLogger("meta_log")
@@ -61,11 +62,11 @@ def main():
             if len(req_buffer) > 999:
                 insert(collection, req_buffer)
                 req_buffer = []
-    insert(collection, req_buffer)
-    lines = fileinput.filelineno()
-    if not lines:
+    if req_buffer:
+        insert(collection, req_buffer)
+    if not fileinput.lineno():
         sys.exit("No requests to process")
-    print("{0} requests processed".format(fileinput.filelineno()))
+    log.info("{0} requests processed".format(fileinput.lineno()))
 
 
 if __name__ == '__main__':
