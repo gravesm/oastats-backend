@@ -40,14 +40,14 @@ def main():
             request = process(line)
         except apachelog.ApacheLogParserError:
             # log unparseable requests
-            req_log.error(line, extra={'err_type': 'REQUEST_ERROR'})
+            req_log.error(line.strip(), extra={'err_type': 'REQUEST_ERROR'})
             continue
         except (pygeoip.GeoIPError, KeyError):
             # log unresolveable IP addresses
-            req_log.error(line, extra={'err_type': 'IP_ERROR'})
+            req_log.error(line.strip(), extra={'err_type': 'IP_ERROR'})
             continue
         except requests.exceptions.RequestException:
-            req_log.error(line, extra={'err_type': 'DSPACE_ERROR'})
+            req_log.error(line.strip(), extra={'err_type': 'DSPACE_ERROR'})
             continue
         if request:
             req_buffer.append(request)

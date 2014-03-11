@@ -9,9 +9,3 @@ class RequestFilter(logging.Filter):
             return record.err_type == self.msg_type
         except AttributeError:
             return False
-
-
-class RequestFormatter(logging.Formatter):
-    def format(self, record):
-        record.msg = record.msg.strip()
-        return super(RequestFormatter, self).format(record)
