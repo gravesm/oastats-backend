@@ -1,6 +1,6 @@
 import logging
 import sys
-from pipeline.log import RequestFilter, RequestFormatter
+from pipeline.log import RequestFilter
 
 # Configure which fields from the Apache log will be retained and what field
 # they will be mapped to in the final JSON object.
@@ -31,23 +31,28 @@ DSPACE_IDENTITY_SERVICE = 'http://dspace-dev.mit.edu/ws/oastats'
 
 # Configure logging for the application
 log = logging.getLogger('pipeline')
-log.addHandler(logging.StreamHandler(sys.stderr))
-log.setLevel(logging.INFO)
+
+info_hdlr = logging.StreamHandler(sys.stdout)
+info_hdlr.setLevel(logging.INFO)
+
+err_hdlr = logging.StreamHandler(sys.stderr)
+err_hdlr.setFormatter(logging.Formatter('%(msg)s: %(inputfile)s:%(inputline)s'))
+err_hdlr.setLevel(logging.ERROR)
+
+log.addHandler(info_hdlr)
+log.addHandler(err_hdlr)
 
 # Configure logging for request logger
 req = logging.getLogger('req_log')
 
 ip_hdlr = logging.FileHandler('logs/ip.log')
 ip_hdlr.addFilter(RequestFilter('IP_ERROR'))
-ip_hdlr.setFormatter(RequestFormatter())
 
 req_hdlr = logging.FileHandler('logs/req.log')
 req_hdlr.addFilter(RequestFilter('REQUEST_ERROR'))
-req_hdlr.setFormatter(RequestFormatter())
 
 meta_hdlr = logging.FileHandler('logs/meta.log')
 meta_hdlr.addFilter(RequestFilter('DSPACE_ERROR'))
-meta_hdlr.setFormatter(RequestFormatter())
 
 req.addHandler(ip_hdlr)
 req.addHandler(meta_hdlr)

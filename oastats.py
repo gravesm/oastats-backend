@@ -49,6 +49,10 @@ def main():
         except requests.exceptions.RequestException:
             req_log.error(line.strip(), extra={'err_type': 'DSPACE_ERROR'})
             continue
+        except Exception, e:
+            log.error(e, extra={'inputfile': fileinput.filename(),
+                                'inputline': fileinput.filelineno()})
+            continue
         if request:
             req_buffer.append(request)
         if len(req_buffer) > 999:
