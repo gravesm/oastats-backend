@@ -1,8 +1,11 @@
 apachelog==1.0
+arrow==0.4.2
 httmock==1.2
 mongobox==0.1.3
 nose==1.3.0
 pycountry==1.3
 pygeoip==0.3.0
 pymongo==2.6.3
+python-dateutil==2.2
 requests==2.2.1
+six==1.5.2

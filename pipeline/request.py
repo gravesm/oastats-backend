@@ -1,7 +1,7 @@
 import pygeoip
 import pycountry
 import time
-from datetime import datetime
+import arrow
 import logging
 from conf import settings
 from .decorators import memoize
@@ -31,9 +31,9 @@ def add_country(request):
     return request
 
 def str_to_dt(request):
-    """Convert Apache timestamp to timezone-naive datetime object."""
-    t = time.strptime(request['time'].split(' ')[0], "[%d/%b/%Y:%H:%M:%S")
-    request['time'] = datetime.fromtimestamp(time.mktime(t))
+    """Convert Apache timestamp to datetime object."""
+    t = arrow.get(request['time'], '[DD/MMM/YYYY:HH:mm:ss Z]')
+    request['time'] = t.datetime
     return request
 
 def req_to_url(request):
