@@ -91,6 +91,18 @@ class TestSummarize(unittest.TestCase):
         self.assertEqual(len(res['dates']), 1)
         self.assertIn({'date': '2006-06-06', 'downloads': 1}, res['dates'])
 
+    def test_set_handle_authors_skips_empty_authors(self):
+        self.req.insert([
+                        {'handle': 'OVERLORDS', 'authors': [
+                            {'mitid': 1234, 'name': 'Buttercup'}]},
+                        {'handle': 'TIMELORDS', 'authors': {}},
+                        {'handle': 'CAKELORDS', 'authors': 'bogus'},
+                        {'handle': 'TRACILORDS'}])
+        summarize.set_handle_authors(self.req, self.sum)
+        self.assertIsNone(self.sum.find_one({'_id': 'TIMELORDS'}))
+        self.assertIsNone(self.sum.find_one({'_id': 'CAKELORDS'}))
+        self.assertIsNone(self.sum.find_one({'_id': 'TRACILORDS'}))
+
     def test_set_handle_authors_creates_set_of_authors(self):
         self.req.insert([
                         {'handle': 'TINSLETOONS', 'authors': [

@@ -1,6 +1,6 @@
 import os
 
-os.environ.setdefault("OASTATS_SETTINGS", "pipeline.settings")
+os.environ.setdefault("OASTATS_SETTINGS", "settings.py")
 
 from pipeline.conf import settings
 from pipeline.load_json import get_collection
