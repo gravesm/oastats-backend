@@ -3,7 +3,7 @@ import requests
 from conf import settings
 from .decorators import memoize
 
-handle_pattern = re.compile(r"/handle/(?P<handle>[0-9.]+/[0-9]+)")
+handle_pattern = re.compile(r"/openaccess-disseminate/(?P<handle>[0-9.]+/[0-9]+)")
 
 def fetch_metadata(request):
     data = _make_request(get_handle(request.get("request")))
