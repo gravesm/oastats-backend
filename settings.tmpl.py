@@ -22,9 +22,8 @@ MONGO_DB = 'oastats'
 MONGO_COLLECTION = 'requests'
 MONGO_SUMMARY_COLLECTION = 'summary'
 
-# Location of the GeoIPv4 and GeoIPv6 databases
-GEOIP4_DB = ''
-GEOIP6_DB = ''
+# Location of the GeoIP database
+GEOIP_DB = ''
 
 # DSpace identity service
 DSPACE_IDENTITY_SERVICE = 'http://dspace-dev.mit.edu/ws/oastats'

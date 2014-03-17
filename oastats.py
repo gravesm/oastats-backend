@@ -7,7 +7,7 @@ import sys
 from pipeline.conf import settings
 from pipeline import process
 from pipeline.load_json import get_collection, insert
-import pygeoip
+from geoip2.errors import AddressNotFoundError
 import logging
 import apachelog
 import requests
@@ -42,7 +42,7 @@ def main():
             # log unparseable requests
             req_log.error(line.strip(), extra={'err_type': 'REQUEST_ERROR'})
             continue
-        except (pygeoip.GeoIPError, KeyError):
+        except (AddressNotFoundError, KeyError):
             # log unresolveable IP addresses
             req_log.error(line.strip(), extra={'err_type': 'IP_ERROR'})
             continue

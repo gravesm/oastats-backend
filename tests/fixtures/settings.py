@@ -18,9 +18,8 @@ MONGO_CONNECTION = ('localhost', 27017,)
 MONGO_DB = 'oastats'
 MONGO_COLLECTION = 'requests'
 
-# Location of the GeoIPv4 and GeoIPv6 databases
-GEOIP4_DB = 'tests/fixtures/GeoIP.dat'
-GEOIP6_DB = 'tests/fixtures/GeoIPv6.dat'
+# Location of the GeoIP database
+GEOIP_DB = 'tests/fixtures/GeoLite2-Country.mmdb'
 
 DSPACE_IDENTITY_SERVICE = 'http://www.example.com'
 
