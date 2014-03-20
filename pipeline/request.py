@@ -1,4 +1,5 @@
 import geoip2.database
+from geoip2.errors import AddressNotFoundError
 import pycountry
 import arrow
 from conf import settings
@@ -8,7 +9,10 @@ reader = geoip2.database.Reader(settings.GEOIP_DB)
 
 @memoize
 def get_alpha2_code(ip):
-    res = reader.country(ip)
+    try:
+        res = reader.country(ip)
+    except AddressNotFoundError:
+        return 'XX'
     if res.country.iso_code is not None:
         return res.country.iso_code
     if res.traits.is_anonymous_proxy:
@@ -24,7 +28,7 @@ def add_country(request):
     """Add ISO 3166-1 alpha-3 code to country field of request dict."""
     ip = request.get('ip_address')
     alpha2 = get_alpha2_code(ip)
-    if alpha2 in ('XA', 'XS'):
+    if alpha2 in ('XA', 'XS', 'XX'):
         request['country'] = 'XXX'
     else:
         alpha3 = get_alpha3_code(alpha2)
