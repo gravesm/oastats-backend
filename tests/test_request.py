@@ -1,5 +1,5 @@
 from testing.utils import unittest
-import datetime
+import arrow
 from pipeline.request import (add_country, get_alpha2_code, str_to_dt,
                               req_to_url,)
 
@@ -15,9 +15,9 @@ class TestRequest(unittest.TestCase):
         request = add_country({'ip_address': '18.9.22.169'})
         self.assertEqual(request.get('country'), 'USA')
 
-    def test_str_to_dt_converts_timestamp_to_datetime_without_tz(self):
-        dt = datetime.datetime(1955,11,5,20,30,00)
-        request = str_to_dt({'time': '[5/Nov/1955:20:30:00 -0500]'})
+    def test_str_to_dt_converts_timestamp_to_datetime(self):
+        dt = arrow.get('1955-11-05T20:30:00-05:00').datetime
+        request = str_to_dt({'time': '[05/Nov/1955:20:30:00 -0500]'})
         self.assertEqual(request.get('time'), dt)
 
     def test_req_to_url_converts_to_url(self):

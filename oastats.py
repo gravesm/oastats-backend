@@ -7,7 +7,6 @@ import sys
 from pipeline.conf import settings
 from pipeline import process
 from pipeline.load_json import get_collection, insert
-import pygeoip
 import logging
 import apachelog
 import requests
@@ -41,10 +40,6 @@ def main():
         except apachelog.ApacheLogParserError:
             # log unparseable requests
             req_log.error(line.strip(), extra={'err_type': 'REQUEST_ERROR'})
-            continue
-        except (pygeoip.GeoIPError, KeyError):
-            # log unresolveable IP addresses
-            req_log.error(line.strip(), extra={'err_type': 'IP_ERROR'})
             continue
         except requests.exceptions.RequestException:
             req_log.error(line.strip(), extra={'err_type': 'DSPACE_ERROR'})

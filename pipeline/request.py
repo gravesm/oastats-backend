@@ -1,22 +1,24 @@
-import pygeoip
+import geoip2.database
+from geoip2.errors import AddressNotFoundError
 import pycountry
-import time
-from datetime import datetime
-import logging
+import arrow
 from conf import settings
 from .decorators import memoize
 
-logger = logging.getLogger(__name__)
-
-geov4 = pygeoip.GeoIP(settings.GEOIP4_DB)
-geov6 = pygeoip.GeoIP(settings.GEOIP6_DB)
+reader = geoip2.database.Reader(settings.GEOIP_DB)
 
 @memoize
 def get_alpha2_code(ip):
     try:
-        return geov4.country_code_by_addr(ip)
-    except pygeoip.GeoIPError:
-        return geov6.country_code_by_addr(ip)
+        res = reader.country(ip)
+    except AddressNotFoundError:
+        return 'XX'
+    if res.country.iso_code is not None:
+        return res.country.iso_code
+    if res.traits.is_anonymous_proxy:
+        return 'XA'
+    if res.traits.is_satellite_provider:
+        return 'XS'
 
 def get_alpha3_code(alpha2):
     country = pycountry.countries.get(alpha2=alpha2)
@@ -26,14 +28,17 @@ def add_country(request):
     """Add ISO 3166-1 alpha-3 code to country field of request dict."""
     ip = request.get('ip_address')
     alpha2 = get_alpha2_code(ip)
-    alpha3 = get_alpha3_code(alpha2)
-    request['country'] = alpha3
+    if alpha2 in ('XA', 'XS', 'XX'):
+        request['country'] = 'XXX'
+    else:
+        alpha3 = get_alpha3_code(alpha2)
+        request['country'] = alpha3
     return request
 
 def str_to_dt(request):
-    """Convert Apache timestamp to timezone-naive datetime object."""
-    t = time.strptime(request['time'].split(' ')[0], "[%d/%b/%Y:%H:%M:%S")
-    request['time'] = datetime.fromtimestamp(time.mktime(t))
+    """Convert Apache timestamp to datetime object."""
+    t = arrow.get(request['time'], '[DD/MMM/YYYY:HH:mm:ss Z]')
+    request['time'] = t.datetime
     return request
 
 def req_to_url(request):
