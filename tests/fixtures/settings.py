@@ -21,6 +21,8 @@ MONGO_COLLECTION = 'requests'
 # Location of the GeoIP database
 GEOIP_DB = 'tests/fixtures/GeoLite2-Country.mmdb'
 
+BOT_UA_STRINGS = 'utils/useragents'
+
 DSPACE_IDENTITY_SERVICE = 'http://www.example.com'
 
 # Configure logging for the application

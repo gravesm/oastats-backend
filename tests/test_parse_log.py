@@ -58,5 +58,5 @@ class TestLogParser(unittest.TestCase):
         self.assertIsNone(record_filter(self.request))
 
     def test_filter_drops_crawlers(self):
-        self.request['user_agent'] = 'creepycrawler'
+        self.request['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
         self.assertIsNone(record_filter(self.request))

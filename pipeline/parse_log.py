@@ -13,8 +13,9 @@ parser = apachelog.parser(apachelog.formats['extended'])
 mappings = settings.APACHE_FIELD_MAPPINGS
 handle_pattern = re.compile(r"/openaccess-disseminate/[0-9.]+/[0-9]+")
 
-bots_startswith = ("Java","Python","libwww","lwp-trivial","htdig","Xenu","TinEye","yacy","PycURL","LinkWalker","Ocelli")
-bots_pattern = re.compile(r"bot|crawler|spider|findlinks|feedfetcher|slurp|sensis|jeeves|nutch|harvest|larbin|archiver|ichiro|scrubby|silk|referee|webcollage|store")
+bots = None
+with open(settings.BOT_UA_STRINGS) as fp:
+    bots = frozenset([line.strip() for line in fp])
 
 def record_filter(record):
     """Return the record if it matches certain filters, otherwise None."""
@@ -26,9 +27,7 @@ def record_filter(record):
         return None
     if handle_pattern.search(record.get("request")) is None:
         return None
-    if record.get("user_agent").startswith(bots_startswith):
-        return None
-    if bots_pattern.search(record.get("user_agent")):
+    if record.get("user_agent") in bots:
         return None
     return record
 
