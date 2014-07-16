@@ -1,6 +1,8 @@
 import os
 
-os.environ.setdefault("OASTATS_SETTINGS", "settings.py")
+current_dir = os.path.dirname(os.path.realpath(__file__))
+os.environ.setdefault("OASTATS_SETTINGS",
+                      os.path.join(current_dir, "settings.py"))
 
 import fileinput
 import sys
