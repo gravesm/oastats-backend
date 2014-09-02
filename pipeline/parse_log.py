@@ -14,7 +14,8 @@ mappings = settings.APACHE_FIELD_MAPPINGS
 handle_pattern = re.compile(r"/openaccess-disseminate/[0-9.]+/[0-9]+")
 
 bots_startswith = ("Java","Python","libwww","lwp-trivial","htdig","Xenu","TinEye","yacy","PycURL","LinkWalker","Ocelli")
-bots_pattern = re.compile(r"bot|crawler|spider|findlinks|feedfetcher|slurp|sensis|jeeves|nutch|harvest|larbin|archiver|ichiro|scrubby|silk|referee|webcollage|store")
+bots_pattern = re.compile(r"bot|crawler|spider|findlinks|feedfetcher|slurp|sensis|jeeves|nutch|harvest|larbin|archiver|ichiro|scrubby|silk|referee|webcollage|store",
+                          re.IGNORECASE)
 
 def record_filter(record):
     """Return the record if it matches certain filters, otherwise None."""

@@ -57,6 +57,10 @@ class TestLogParser(unittest.TestCase):
         self.request['ip_address'] = '18.7.27.25'
         self.assertIsNone(record_filter(self.request))
 
-    def test_filter_drops_crawlers(self):
-        self.request['user_agent'] = 'creepycrawler'
+    def test_filter_drops_crawlers_starting_with(self):
+        self.request['user_agent'] = "Python shmython"
+        self.assertIsNone(record_filter(self.request))
+
+    def test_filter_drops_crawlers_containing(self):
+        self.request['user_agent'] = 'creepyCrawler'
         self.assertIsNone(record_filter(self.request))
