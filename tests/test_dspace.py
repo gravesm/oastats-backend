@@ -2,6 +2,7 @@ from testing.utils import unittest
 from httmock import all_requests, HTTMock
 import requests
 import pipeline.dspace as dspace
+import json
 
 @all_requests
 def error_response(url, request):
@@ -11,8 +12,16 @@ def error_response(url, request):
 
 @all_requests
 def dspace_response(url, request):
+    response = {
+        "title": "50 Shades of Hay",
+        "uri": "Meadowcup",
+        "departments": [
+            { "canonical": "Hay There", "display": "Wut" }
+        ],
+        "success": True
+    }
     return {
-        'content': '{"department": "Hay There", "uri": "Meadowcup", "title": "50 Shades of Hay", "success": "true"}'
+        'content': json.dumps(response)
     }
 
 @all_requests
@@ -31,7 +40,7 @@ class TestDSpace(unittest.TestCase):
     def test_fetch_metadata_sets_properties(self):
         with HTTMock(dspace_response):
             req = dspace.fetch_metadata({'request': '/openaccess-disseminate/1.2.3/4'})
-            self.assertEqual(req['dlcs'], ["Hay There"])
+            self.assertEqual(req['dlcs'], [{"canonical": "Hay There", "display": "Wut"}])
             self.assertEqual(req['handle'], "Meadowcup")
             self.assertEqual(req['title'], "50 Shades of Hay")
 
