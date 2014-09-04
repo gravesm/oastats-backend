@@ -9,7 +9,7 @@ def fetch_metadata(request):
     data = _make_request(get_handle(request.get("request")))
     if not data.get('success'):
         return False
-    request['dlcs'] = [data.get("department")]
+    request['dlcs'] = filter(None, data.get("departments", []))
     request['handle'] = data.get("uri")
     request['title'] = data.get("title")
     authors = data.get("ids")
