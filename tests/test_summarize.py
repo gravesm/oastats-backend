@@ -10,6 +10,14 @@ class TestSummarize(unittest.TestCase):
         self.box.start()
         self.req = self.box.client().db1.req
         self.sum = self.box.client().db1.sum
+        self.dlc_muffins = {
+            'canonical': 'School of Muffin Science',
+            'display': 'Muffins!'
+        }
+        self.dlc_cupcakes = {
+            'canonical': 'Dept of Cupcake Design',
+            'display': 'Sweet Cuppincakes!'
+        }
 
     def test_set_overall_summary_summarizes_downloads(self):
         self.req.insert([
@@ -180,67 +188,72 @@ class TestSummarize(unittest.TestCase):
         self.assertEqual(res['size'], 1)
 
     def test_set_author_dlcs_creates_set_of_dlcs(self):
-        self.req.insert([
-                        {'authors': [
-                            {'mitid': 1234, 'name': 'Rumplecuff'},
-                            {'mitid': 9876, 'name': 'Muffincup'}],
-                         'dlcs': ['School of Muffin Science']},
-                        {'authors': [
-                            {'mitid': 1234, 'name': 'Rumplecuff'}],
-                         'dlcs': ['School of Muffin Science', 'Dept of Cupcake Design']}])
+        self.req.insert([{
+                            'authors': [
+                                {'mitid': 1234, 'name': 'Rumplecuff'},
+                                {'mitid': 9876, 'name': 'Muffincup'}
+                            ],
+                            'dlcs': [self.dlc_muffins]
+                        },
+                        {
+                            'authors': [
+                                {'mitid': 1234, 'name': 'Rumplecuff'}
+                            ],
+                            'dlcs': [self.dlc_muffins, self.dlc_cupcakes]
+                        }])
         summarize.set_author_dlcs(self.req, self.sum)
 
         res = self.sum.find_one({'_id': {'mitid': 1234, 'name': 'Rumplecuff'}})
         self.assertEqual(len(res['parents']), 2)
-        self.assertIn('School of Muffin Science', res['parents'])
-        self.assertIn('Dept of Cupcake Design', res['parents'])
+        self.assertIn(self.dlc_muffins, res['parents'])
+        self.assertIn(self.dlc_cupcakes, res['parents'])
 
         res = self.sum.find_one({'_id': {'mitid': 9876, 'name': 'Muffincup'}})
-        self.assertEqual(['School of Muffin Science'], res['parents'])
+        self.assertEqual([self.dlc_muffins], res['parents'])
 
     def test_set_dlc_summary_summarizes_downloads(self):
         self.req.insert([
-                        {'handle': 'MOONBOTTOM', 'dlcs': ['S of Cupcake Sci']},
-                        {'handle': 'MOONBOTTOM', 'dlcs': ['S of Cupcake Sci']},
-                        {'handle': 'KITTENTOWN', 'dlcs': ['S of Cupcake Sci', 'Dep of Pie']}])
+                        {'handle': 'MOONBOTTOM', 'dlcs': [self.dlc_cupcakes]},
+                        {'handle': 'MOONBOTTOM', 'dlcs': [self.dlc_cupcakes]},
+                        {'handle': 'KITTENTOWN', 'dlcs': [self.dlc_cupcakes, self.dlc_muffins]}])
         summarize.set_dlc_summary(self.req, self.sum)
 
-        res = self.sum.find_one({'_id': 'S of Cupcake Sci'})
+        res = self.sum.find_one({'_id': self.dlc_cupcakes})
         self.assertEqual(res['downloads'], 3)
         self.assertEqual(res['size'], 2)
 
-        res = self.sum.find_one({'_id': 'Dep of Pie'})
+        res = self.sum.find_one({'_id': self.dlc_muffins})
         self.assertEqual(res['downloads'], 1)
         self.assertEqual(res['size'], 1)
 
     def test_set_dlc_dates_summarizes_date_downloads(self):
         self.req.insert([
-                        {'time': datetime(2006,6,6), 'dlcs': ['S of Cupcake Sci']},
-                        {'time': datetime(1955,11,5), 'dlcs': ['S of Cupcake Sci']},
-                        {'time': datetime(2006,6,6), 'dlcs': ['S of Cupcake Sci', 'Dep of Pie']}])
+                        {'time': datetime(2006,6,6), 'dlcs': [self.dlc_cupcakes]},
+                        {'time': datetime(1955,11,5), 'dlcs': [self.dlc_cupcakes]},
+                        {'time': datetime(2006,6,6), 'dlcs': [self.dlc_cupcakes, self.dlc_muffins]}])
         summarize.set_dlc_dates(self.req, self.sum)
 
-        res = self.sum.find_one({'_id': 'S of Cupcake Sci'})
+        res = self.sum.find_one({'_id': self.dlc_cupcakes})
         self.assertEqual(len(res['dates']), 2)
         self.assertIn({'date': '2006-06-06', 'downloads': 2}, res['dates'])
         self.assertIn({'date': '1955-11-05', 'downloads': 1}, res['dates'])
 
-        res = self.sum.find_one({'_id': 'Dep of Pie'})
+        res = self.sum.find_one({'_id': self.dlc_muffins})
         self.assertEqual([{'date': '2006-06-06', 'downloads': 1}], res['dates'])
 
     def test_set_dlc_countries_summarizes_country_downloads(self):
         self.req.insert([
-                        {'country': 'USA', 'dlcs': ['Dep of Pie']},
-                        {'country': 'RUS', 'dlcs': ['Dep of Pie']},
-                        {'country': 'USA', 'dlcs': ['Dep of Pie', 'S of Cupcake Sci']}])
+                        {'country': 'USA', 'dlcs': [self.dlc_muffins]},
+                        {'country': 'RUS', 'dlcs': [self.dlc_muffins]},
+                        {'country': 'USA', 'dlcs': [self.dlc_muffins, self.dlc_cupcakes]}])
         summarize.set_dlc_countries(self.req, self.sum)
 
-        res = self.sum.find_one({'_id': 'Dep of Pie'})
+        res = self.sum.find_one({'_id': self.dlc_muffins})
         self.assertEqual(len(res['countries']), 2)
         self.assertIn({'country': 'USA', 'downloads': 2}, res['countries'])
         self.assertIn({'country': 'RUS', 'downloads': 1}, res['countries'])
 
-        res = self.sum.find_one({'_id': 'S of Cupcake Sci'})
+        res = self.sum.find_one({'_id': self.dlc_cupcakes})
         self.assertEqual([{'country': 'USA', 'downloads': 1}], res['countries'])
 
     def tearDown(self):
